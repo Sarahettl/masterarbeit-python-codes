@@ -21,6 +21,12 @@ def transform_csv(file_path, output_path=None):
 
     df = df_raw.copy()
 
+    # Benutzer anonymisieren mit fortlaufender ID
+    if 'User' in df.columns:
+        user_mapping = {name: f"id_{idx+1}" for idx, name in enumerate(df['User'].unique())}
+        df['user_id_anonym'] = df['User'].map(user_mapping)
+
+
     # Neue Spalten aus "Average Rating (N Reviews)"
     if 'Average Rating (N Reviews)' in df.columns:
         extracted = df['Average Rating (N Reviews)'].str.extract(r'([\d,]+)\s*\(([^)]+)\)')
