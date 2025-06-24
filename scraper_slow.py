@@ -120,7 +120,7 @@ def init_driver():
 
     driver = uc.Chrome(options=options)
     driver.get("https://api.ipify.org/?format=text")
-    print("🌍 Aktuelle Proxy-IP:", driver.page_source.strip())
+    print("current Proxy-IP:", driver.page_source.strip())
     return driver
 
 def is_captcha_page(driver):
