@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 import time
 
-# Dein API Key hier einfügen
+# API Key 
 API_KEY = "AIzaSyDenuTITy06MWYH2BnzFnwEaW91cHjVuSw"
 
 # Datei laden
@@ -64,4 +64,4 @@ for index, row in df.iterrows():
 
 # Ergebnis speichern
 df.to_csv("places_with_full_info.csv", index=False)
-print("✔️ Fertig! Datei gespeichert: places_with_full_info.csv")
+print("Datei gespeichert: places_with_full_info.csv")
