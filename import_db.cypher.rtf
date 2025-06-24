@@ -1,0 +1,398 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2758
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\froman\fcharset0 Times-Roman;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red255\green255\blue254;\red38\green38\blue38;
+\red115\green138\blue4;\red71\green91\blue98;\red255\green255\blue255;\red0\green0\blue0;\red165\green119\blue5;
+\red37\green146\blue134;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c100000\c100000\c99608;\cssrgb\c20000\c20000\c20000;
+\cssrgb\c52157\c60000\c0;\cssrgb\c34510\c43137\c45882;\cssrgb\c100000\c100000\c100000;\cssrgb\c0\c0\c0\c87059;\cssrgb\c70980\c53725\c0;
+\cssrgb\c16471\c63137\c59608;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww28600\viewh15560\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs20 \cf2 \cb3 \expnd0\expndtw0\kerning0
+// create constraints\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 CREATE CONSTRAINT `id_Continent_uniq` IF NOT EXISTS\cf2 \
+\cf2 FOR (n: `Continent`)\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 REQUIRE (n.`id`) IS UNIQUE;\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 CREATE CONSTRAINT `id_Region_uniq` IF NOT EXISTS\cf2 \
+\cf2 FOR (n: `Region`)\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 REQUIRE (n.`id`) IS UNIQUE;\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 CREATE CONSTRAINT `id_Country_uniq` IF NOT EXISTS\cf2 \
+\cf2 FOR (n: `Country`)\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 REQUIRE (n.`id`) IS UNIQUE;\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 CREATE CONSTRAINT `id_City_uniq` IF NOT EXISTS\cf2 \
+\cf2 FOR (n: `City`)\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 REQUIRE (n.`id`) IS UNIQUE;\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 CREATE CONSTRAINT `attraction_type_Type_uniq` IF NOT EXISTS\cf2 \
+\cf2 FOR (n: `Type`)\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 REQUIRE (n.`attraction_type`) IS UNIQUE;\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 CREATE CONSTRAINT `name_Item_uniq` IF NOT EXISTS\cf2 \
+\cf2 FOR (n: `Item`)\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 REQUIRE (n.`name`) IS UNIQUE;\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 CREATE CONSTRAINT `id_User_uniq` IF NOT EXISTS\cf2 \
+\cf2 FOR (n: `User`)\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 REQUIRE (n.`id`) IS UNIQUE;\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 CREATE CONSTRAINT `name_Item_uniq` IF NOT EXISTS\cf2 \
+\cf2 FOR (n: `Rating`)\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 REQUIRE (n.`name`) IS UNIQUE;\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 //Import Country\cf2 \
+\cb7 :auto\cf2 \cb1 \uc0\u8232 \cb7 LOAD CSV WITH HEADERS FROM ('file:///Country.csv') AS row FIELDTERMINATOR ';'\cb1 \uc0\u8232 \cb7 WITH row\cb1 \uc0\u8232 \cb7 WHERE NOT row.`CountryId` IN [] AND NOT toInteger(trim(row.`CountryId`)) IS NULL\cb1 \uc0\u8232 \cb7 CALL \{\cb1 \uc0\u8232 \cb7 \'a0 WITH row\cb1 \uc0\u8232 \cb7 \'a0 MERGE (n: `Country` \{ `ID`: toInteger(trim(row.`CountryId`)) \'a0\})\cb1 \uc0\u8232 \cb7 \'a0 SET n.`ID` = toInteger(trim(row.`CountryId`))\cb1 \uc0\u8232 \cb7 \'a0 SET n.`name` = row.`Country`\cb1 \uc0\u8232 \cb7 \} IN TRANSACTIONS OF 10000 ROWS;\
+\
+\cf2 //Import Country 2nd dataset\cb3 \
+\cb7 :auto\cf2 \cb1 \uc0\u8232 \cb7 LOAD CSV WITH HEADERS FROM ('file:///all_places_enriched_cleaned.csv') AS row FIELDTERMINATOR ';'\cb1 \uc0\u8232 \cb7 WITH row\cb1 \uc0\u8232 \cb7 WHERE row.`Country` IS NOT NULL\cb1 \uc0\u8232 \cb7 CALL \{\cb1 \uc0\u8232 \cb7 \'a0 WITH row\cb1 \uc0\u8232 \cb7 \'a0 MERGE (n: `Country` \{ `name`: row.`Country` \})\cb1 \uc0\u8232 \cb7 \} IN TRANSACTIONS OF 10000 ROWS;\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 //Import City\cf2 \cb3 \
+\pard\pardeftab720\partightenfactor0
+\cf2 :auto\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 LOAD\cb3  \cb3 CSV\cb3  \cb3 WITH\cb3  \cb3 HEADERS\cb3  \cb3 FROM\cb3  (\cb3 'file:///City.csv'\cb3 ) \cb3 AS\cb3  row \cb3 FIELDTERMINATOR\cb3  \cb3 ';'\cf2 \cb3 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 WHERE\cb3  \cb3 NOT\cb3  row.`CityId` \cb3 IN\cb3  [] \cb3 AND\cb3  \cb3 NOT\cb3  toInteger(trim(row.`CityId`)) \cb3 IS\cb3  \cb3 NULL\cf2 \cb3 \
+\cf2 \cb3 CALL\cb3  \{\cf2 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 MERGE\cb3  (n: `City` \{ `ID`: toInteger(trim(row.`CityId`)) \})\cf2 \
+\cf2 \cb3 SET\cb3  n.`ID` = toInteger(trim(row.`CityId`))\cf2 \
+\cf2 \cb3 SET\cb3  n.`name` = row.`CityName`\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \} \cb3 IN\cb3  TRANSACTIONS \cb3 OF\cb3  \cb3 10000\cb3  ROWS;\cf2 \
+\'a0\
+\'a0\
+//Import City 2nd dataset\cb1 \uc0\u8232 \cf2 \cb3 :auto\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 LOAD\cb3  \cb3 CSV\cb3  \cb3 WITH\cb3  \cb3 HEADERS\cb3  \cb3 FROM\cb3  (\cb3 'file:///all_places_enriched_cleaned.csv'\cb3 ) \cb3 AS\cb3  row \cb3 FIELDTERMINATOR\cb3  \cb3 ';'\cf2 \cb3 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 WHERE\cb3  row.`City` \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cf2 \cb3 \
+\cf2 \cb3 CALL\cb3  \{\cf2 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 MERGE\cb3  (n: `City` \{ `name`: row.`City` \})\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \} \cb3 IN\cb3  TRANSACTIONS \cb3 OF\cb3  \cb3 10000\cb3  ROWS;\cf2 \
+\
+//Import Item:\
+\'a0\
+:auto\
+LOAD CSV WITH HEADERS FROM ('file:///Item.csv') AS row FIELDTERMINATOR ';' \
+WITH row\
+WHERE NOT row.`AttractionId` IN [] AND trim(row.`AttractionId`) IS NOT NULL\
+CALL \{\
+\'a0 WITH row\
+\'a0 MERGE (n: `Item` \{ `AttractionId`: trim(row.`AttractionId`) \})\
+\'a0 SET n.`AttractionId` = trim(row.`AttractionId`)\
+\'a0 SET n.`Attraction` = trim(row.`Attraction`)\
+\'a0 SET n.`AttractionAddress` = trim(row.`AttractionAddress`)\
+\} IN TRANSACTIONS OF 10000 ROWS;\
+\'a0\
+//Import Item 2nd dataset\
+:auto\
+LOAD CSV WITH HEADERS FROM ('file:///all_places_enriched_cleaned.csv') AS row FIELDTERMINATOR ';' \
+WITH row\
+WHERE row.`place_id` IS NOT NULL\
+CALL \{\
+\'a0 WITH row\
+\'a0 MERGE (n: `Item` \{ `AttractionId`: trim(row.`place_id`) \})\
+\'a0 SET n.`Attraction` = trim(row.`ReviewedLocationName`)\
+\'a0 SET n.`place_id` = trim(row.`place_id`)\
+\'a0 SET n.`longitude` = trim(row.`longitude`)\
+\'a0 SET n.`latitude` = trim(row.`latitude`)\
+\'a0 SET n.`price_level` = trim(row.`price_level`)\
+\'a0 SET n.`avg_rating_google` = trim(row.`avg_google_rating`)\
+\'a0 SET n.`operational_status` = trim(row.`operational_status`)\
+\} IN TRANSACTIONS OF 10000 ROWS;\
+\
+//Import User\
+:auto\
+LOAD CSV WITH HEADERS FROM ('file:///Transaction.csv') AS row\
+FIELDTERMINATOR ';'\
+WITH row\
+WHERE trim(row.UserId) IS NOT NULL\
+CALL \{\
+\'a0 WITH row\
+\'a0 MERGE (u:User \{UserId: trim(row.UserId)\})\
+\} IN TRANSACTIONS OF 10000 ROWS;\
+\'a0\
+\'a0//Import User 2nd dataset\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb1 :auto\
+LOAD CSV WITH HEADERS FROM ('file:///Reviews_final_cleaned.csv') AS row\
+FIELDTERMINATOR ';'\
+WITH row\
+WHERE trim(row.user_id_anonym) IS NOT NULL\
+CALL \{\
+\'a0 WITH row\
+\'a0 MERGE (u:User \{UserId: trim(row.user_id_anonym)\})\
+\} IN TRANSACTIONS OF 10000 ROWS; \
+\
+//Import Continent\
+LOAD CSV WITH HEADERS FROM 'file:///Continent.csv' AS row FIELDTERMINATOR ';'\
+WITH row\
+WHERE row.ContinentId IS NOT NULL\
+CALL \{\
+\'a0 WITH row\
+\'a0 MERGE (c:Continent \{id: toInteger(row.ContinentId)\})\
+\'a0 SET c.name = row.ContinentName\
+\} IN TRANSACTIONS OF 10000 ROWS;\
+\
+//Import Type\
+:auto\
+LOAD CSV WITH HEADERS FROM 'file:///Type.csv' AS row FIELDTERMINATOR ';'\
+WITH row\
+WHERE trim(row.AttractionTypeId) IS NOT NULL AND trim(row.AttractionType) IS NOT NULL\
+CALL \{\
+\'a0 WITH row\
+\'a0 MERGE (t:Type \{ID: toInteger(trim(row.AttractionTypeId))\})\
+\'a0 SET t.attraction_type = trim(row.AttractionType)\
+\} IN TRANSACTIONS OF 10000 ROWS;\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 //Import Region\
+LOAD CSV WITH HEADERS FROM 'file:///Region\'91 AS row FIELDTERMINATOR ';'\
+WITH row\
+WHERE row.RegionId IS NOT NULL\
+CALL \{\
+\'a0 WITH row\
+\'a0 MERGE (c:Region \{id: toInteger(row.RegionId)\})\
+\'a0 SET c.name = row.Region\
+\} IN TRANSACTIONS OF 10000 ROWS;\
+\
+\pard\pardeftab720\partightenfactor0
+\cf2 //Import Rating\cf2 \
+\cf2 :auto\cf2 \
+\cf2 LOAD CSV WITH HEADERS FROM 'file:///Reviews_final_cleaned.csv' AS row FIELDTERMINATOR ';'\cf2 \
+\cf2 WITH row\cf2 \
+\cf2 WHERE trim(row.reviewed_location_name) IS NOT NULL\cf2 \
+\cf2 CALL \{\cf2 \
+\cf2 \'a0 WITH row\cf2 \
+\cf2 \'a0 MERGE (r:Rating \{ReviewedLocationName: trim(row.reviewed_location_name)\})\cf2 \
+\cf2 \'a0 SET r.original_title\'a0\'a0\'a0\'a0\'a0\'a0\'a0 = trim(row.original_title),\cf2 \
+\cf2 \'a0\'a0\'a0\'a0\'a0 r.translated_title\'a0\'a0\'a0\'a0\'a0 = trim(row.translated_title),\cf2 \
+\cf2 \'a0\'a0\'a0\'a0\'a0 r.original_text\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 = trim(row.original_text),\cf2 \
+\cf2 \'a0\'a0\'a0\'a0\'a0 r.translated_text\'a0\'a0\'a0\'a0\'a0\'a0 = trim(row.translated_text),\cf2 \
+\cf2 \'a0\'a0\'a0\'a0\'a0 r.rating\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 = toFloat(row.rating),\cf2 \
+\cf2 \'a0\'a0\'a0\'a0\'a0 r.category\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 = trim(row.category),\cf2 \
+\cf2 \'a0\'a0\'a0\'a0\'a0 r.user_id_anonym\'a0\'a0\'a0\'a0\'a0\'a0\'a0 = trim(row.user_id_anonym),\cf2 \
+\cf2 \'a0\'a0\'a0\'a0\'a0 r.average_rating_tripadvisor = toFloat(row.average_rating_tripadvisor),\cf2 \
+\cf2 \'a0\'a0\'a0\'a0\'a0 r.total_reviews_tripadvisor\'a0 = toInteger(row.total_reviews_tripadvisor),\cf2 \
+\cf2 \'a0\'a0\'a0\'a0\'a0 r.city\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 = trim(row.city),\cf2 \
+\cf2 \'a0\'a0\'a0\'a0\'a0 r.country\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 = trim(row.country),\cf2 \
+\cf2 \'a0\'a0\'a0\'a0\'a0 r.month_of_visit\'a0\'a0\'a0\'a0\'a0\'a0\'a0 = toInteger(row.month_of_visit),\cf2 \
+\cf2 \'a0\'a0\'a0\'a0\'a0 r.year_of_visit\'a0\'a0\'a0\'a0\'a0\'a0\'a0\'a0 = toInteger(row.year_of_visit),\cf2 \
+\cf2 \'a0\'a0\'a0\'a0\'a0 r.title_sentiment\'a0\'a0\'a0\'a0\'a0\'a0 = toInteger(row.title_sentiment),\cf2 \
+\cf2 \'a0\'a0\'a0\'a0\'a0 r.review_sentiment\'a0\'a0\'a0\'a0\'a0 = toInteger(row.review_sentiment)\cf2 \
+\cf2 \} IN TRANSACTIONS OF 10000 ROWS;\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 //Importing the relationships:\
+//City - Country\cb1 \uc0\u8232 \cf2 \cb3 :auto\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 LOAD\cb3  \cb3 CSV\cb3  \cb3 WITH\cb3  \cb3 HEADERS\cb3  \cb3 FROM\cb3  (\cb3 'file:///City.csv'\cb3 ) \cb3 AS\cb3  row \cb3 FIELDTERMINATOR\cb3  \cb3 ';'\cf2 \cb3 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 WHERE\cb3  \cb3 NOT\cb3  row.CityId \cb3 IN\cb3  [] \cb3 AND\cb3  \cb3 NOT\cb3  toInteger(trim(row.CityId)) \cb3 IS\cb3  \cb3 NULL\cf2 \cb3 \
+\cf2 \cb3 AND\cb3  \cb3 NOT\cb3  row.CountryId \cb3 IN\cb3  [] \cb3 AND\cb3  \cb3 NOT\cb3  toInteger(trim(row.CountryId)) \cb3 IS\cb3  \cb3 NULL\cf2 \cb3 \
+\cf2 \cb3 CALL\cb3  \{\cf2 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 MATCH\cb3  (source:City \{ ID: toInteger(trim(row.CityId)) \})\cf2 \
+\cf2 \cb3 MATCH\cb3  (target:Country \{ ID: toInteger(trim(row.CountryId)) \})\cf2 \
+\cf2 \cb3 MERGE\cb3  (source)-[:LOCATED_IN]->(target)\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \} \cb3 IN\cb3  TRANSACTIONS \cb3 OF\cb3  \cb3 10000\cb3  ROWS;\cf2 \
+\'a0\
+//City - Country 2nd file\
+\cf2 :auto\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 LOAD\cb3  \cb3 CSV\cb3  \cb3 WITH\cb3  \cb3 HEADERS\cb3  \cb3 FROM\cb3  (\cb3 'file:///all_places_enriched_cleaned.csv'\cb3 ) \cb3 AS\cb3  row \cb3 FIELDTERMINATOR\cb3  \cb3 ';'\cf2 \cb3 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 WHERE\cb3  row.City \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cb3  \cb3 AND\cb3  row.Country \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cf2 \cb3 \
+\cf2 \cb3 CALL\cb3  \{\cf2 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 // NUR Cities ohne ID verkn\'fcpfen\cf2 \
+\cf2 \cb3 MATCH\cb3  (source:City)\cf2 \
+\cf2 \cb3 WHERE\cb3  source.ID \cb3 IS\cb3  \cb3 NULL\cb3  \cb3 AND\cb3  toLower(trim(source.\cb3 name\cb3 )) = toLower(trim(row.City))\cf2 \
+\cf2 \cb3 MATCH\cb3  (target:Country)\cf2 \
+\cf2 \cb3 WHERE\cb3  toLower(trim(target.\cb3 name\cb3 )) = toLower(trim(row.Country))\cf2 \
+\cf2 \cb3 MERGE\cb3  (source)-[:LOCATED_IN]->(target)\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \} \cb3 IN\cb3  TRANSACTIONS \cb3 OF\cb3  \cb3 10000\cb3  ROWS;\
+\
+\cf2 //Relationship Country - Region (only exists in 1 dataset)\
+\cf2 :auto\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 LOAD\cb3  \cb3 CSV\cb3  \cb3 WITH\cb3  \cb3 HEADERS\cb3  \cb3 FROM\cb3  (\cb3 'file:///Country.csv'\cb3 ) \cb3 AS\cb3  row \cb3 FIELDTERMINATOR\cb3  \cb3 ';'\cf2 \cb3 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 WHERE\cb3  row.CountryId \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cb3  \cb3 AND\cb3  trim(row.CountryId) <> \cb3 ""\cf2 \cb3 \
+\cf2 \cb3 AND\cb3  row.RegionId \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cb3  \cb3 AND\cb3  trim(row.RegionId) <> \cb3 ""\cf2 \cb3 \
+\cf2 \cb3 CALL\cb3  \{\cf2 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 MATCH\cb3  (source:Country \{ ID: toInteger(trim(row.CountryId)) \})\cf2 \
+\cf2 \cb3 MATCH\cb3  (target:Region \{ ID: toInteger(trim(row.RegionId)) \})\cf2 \
+\cf2 \cb3 MERGE\cb3  (source)-[:PART_OF_REGION]->(target)\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \} \cb3 IN\cb3  TRANSACTIONS \cb3 OF\cb3  \cb3 10000\cb3  ROWS;\cf2 \
+\'a0\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb1 \uc0\u8232 \cb3 //Relationship Region - Continent (only exists in 1 dataset)\cb1 \uc0\u8232 \cf2 \cb3 :auto\cf2 \
+\cf2 \cb3 LOAD\cb3  \cb3 CSV\cb3  \cb3 WITH\cb3  \cb3 HEADERS\cb3  \cb3 FROM\cb3  (\cb3 'file:///Region.csv'\cb3 ) \cb3 AS\cb3  row \cb3 FIELDTERMINATOR\cb3  \cb3 ';'\cf2 \cb3 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 WHERE\cb3  row.ContentId \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cb3  \cb3 AND\cb3  trim(row.ContentId) <> \cb3 ""\cf2 \cb3 \
+\cf2 \cb3 AND\cb3  row.RegionId \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cb3  \cb3 AND\cb3  trim(row.RegionId) <> \cb3 ""\cf2 \cb3 \
+\cf2 \cb3 CALL\cb3  \{\cf2 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 MATCH\cb3  (source:Region \{ ID: toInteger(trim(row.RegionId)) \})\cf2 \
+\cf2 \cb3 MATCH\cb3  (target:Continent \{ ID: toInteger(trim(row.ContentId)) \})\cf2 \
+\cf2 \cb3 MERGE\cb3  (source)-[:PART_OF_CONTINENT]->(target)\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \} \cb3 IN\cb3  TRANSACTIONS \cb3 OF\cb3  \cb3 10000\cb3  ROWS;\cf2 \
+\
+\cf2 \'a0\cf2 \
+\cf2 //Relationship rated (User-Item), second dataset\cf2 \
+\cf2 :auto\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 LOAD\cb3  \cb3 CSV\cb3  \cb3 WITH\cb3  \cb3 HEADERS\cb3  \cb3 FROM\cb3  \cb3 'file:///Reviews_final_cleaned.csv'\cb3  \cb3 AS\cb3  row \cb3 FIELDTERMINATOR\cb3  \cb3 ';'\cf2 \cb3 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 WHERE\cb3  trim(row.user_id_anonym) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cb3  \cf2 \
+\cf2 \cb3 AND\cb3  trim(row.reviewed_location_name) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cf2 \cb3 \
+\cf2 \cb3 AND\cb3  trim(row.rating) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cf2 \cb3 \
+\cf2 \cb3 AND\cb3  trim(row.year_of_visit) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cf2 \cb3 \
+\cf2 \cb3 AND\cb3  trim(row.month_of_visit) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cf2 \cb3 \
+\cf2 \cb3 CALL\cb3  \{\cf2 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 MATCH\cb3  (u:\cb3 User\cb3  \{UserId: trim(row.user_id_anonym)\})\cf2 \
+\cf2 \cb3 MATCH\cb3  (i:Item \{Attraction: trim(row.reviewed_location_name)\})\cf2 \
+\cf2 \cb3 MERGE\cb3  (u)-[r:rated]->(i)\cf2 \
+\cf2 \cb3 SET\cb3  r.Rating = toInteger(trim(row.rating)),\cf2 \
+\cf2 r.VisitYear = toInteger(trim(row.year_of_visit)),\cf2 \
+\cf2 r.VisitMonth = toInteger(trim(row.month_of_visit)),\cf2 \
+\cf2 r.OriginalTitle = trim(row.original_title),\cf2 \
+\cf2 r.TranslatedTitle = trim(row.translated_title),\cf2 \
+\cf2 r.OriginalText = trim(row.original_text),\cf2 \
+\cf2 r.TranslatedText = trim(row.translated_text),\cf2 \
+\cf2 r.TitleSentiment = toInteger(trim(row.title_sentiment)),\cf2 \
+\cf2 r.ReviewSentiment = toInteger(trim(row.review_sentiment))\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \} \cb3 IN\cb3  TRANSACTIONS \cb3 OF\cb3  \cb3 10000\cb3  ROWS;\cf2 \
+\
+\cf2 // Relationship Item - Type:\cf2 \
+\cf2 :auto\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 LOAD\cb3  \cb3 CSV\cb3  \cb3 WITH\cb3  \cb3 HEADERS\cb3  \cb3 FROM\cb3  (\cb3 'file:///Item.csv'\cb3 ) \cb3 AS\cb3  row \cb3 FIELDTERMINATOR\cb3  \cb3 ';'\cf2 \cb3 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 WHERE\cb3  trim(row.AttractionId) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cb3  \cf2 \
+\cf2 \cb3 AND\cb3  trim(row.AttractionTypeId) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cf2 \cb3 \
+\cf2 \cb3 CALL\cb3  \{\cf2 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 MATCH\cb3  (item:Item \{AttractionId: trim(row.AttractionId)\})\cf2 \
+\cf2 \cb3 MATCH\cb3  (\cb3 type\cb3 :\cb3 Type\cb3  \{ID: toInteger(trim(row.AttractionTypeId))\})\cf2 \
+\cf2 \cb3 MERGE\cb3  (item)-[:has_type]->(\cb3 type\cb3 )\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \} \cb3 IN\cb3  TRANSACTIONS \cb3 OF\cb3  \cb3 10000\cb3  ROWS;\cf2 \
+\'a0\
+//\'a0\cf2 \cb3 Relationship Item - Type, second dataset\cf2 \cb3 \
+:auto\
+LOAD CSV WITH HEADERS FROM ('file:///all_places_enriched_cleaned.csv') AS row FIELDTERMINATOR ';'\
+WITH row\
+WHERE trim(row.ReviewedLocationName) IS NOT NULL\
+AND trim(row.type) IS NOT NULL\
+CALL \{\
+\'a0 WITH row\
+\'a0 MATCH (item:Item \{Attraction: trim(row.ReviewedLocationName)\})\
+\'a0 MATCH (type:Type \{name: trim(row.type)\})\
+\'a0 MERGE (item)-[:has_type]->(type)\
+\} IN TRANSACTIONS OF 10000 ROWS;\
+\
+//Relationship item - city\
+\cf2 :auto\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 LOAD\cb3  \cb3 CSV\cb3  \cb3 WITH\cb3  \cb3 HEADERS\cb3  \cb3 FROM\cb3  (\cb3 'file:///all_places_enriched_cleaned.csv'\cb3 ) \cb3 AS\cb3  row \cb3 FIELDTERMINATOR\cb3  \cb3 ';'\cf2 \cb3 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 WHERE\cb3  trim(row.City) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cb3  \cf2 \
+\cf2 \cb3 AND\cb3  trim(row.place_id) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cf2 \cb3 \
+\cf2 \cb3 CALL\cb3  \{\cf2 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 MATCH\cb3  (item:Item \{AttractionId: trim(row.place_id)\})\cf2 \
+\cf2 \cb3 MATCH\cb3  (city:City \{\cb3 name\cb3 : trim(row.City)\})\cf2 \
+\cf2 \cb3 MERGE\cb3  (item)-[:is_in_city]->(city)\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \} \cb3 IN\cb3  TRANSACTIONS \cb3 OF\cb3  \cb3 10000\cb3  ROWS;\
+\
+//Relationship item - city, second dataset\
+\pard\pardeftab720\partightenfactor0
+\cf2 :auto\cf2 \
+\cf2 \cb3 LOAD\cb3  \cb3 CSV\cb3  \cb3 WITH\cb3  \cb3 HEADERS\cb3  \cb3 FROM\cb3  (\cb3 'file:///all_places_enriched_cleaned.csv'\cb3 ) \cb3 AS\cb3  row \cb3 FIELDTERMINATOR\cb3  \cb3 ';'\cf2 \cb3 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 WHERE\cb3  trim(row.City) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cb3  \cf2 \
+\cf2 \cb3 AND\cb3  trim(row.place_id) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cf2 \cb3 \
+\cf2 \cb3 CALL\cb3  \{\cf2 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 MATCH\cb3  (item:Item \{AttractionId: trim(row.place_id)\})\cf2 \
+\cf2 \cb3 MATCH\cb3  (city:City \{\cb3 name\cb3 : trim(row.City)\})\cf2 \
+\cf2 \cb3 MERGE\cb3  (item)-[:is_in_city]->(city)\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \} \cb3 IN\cb3  TRANSACTIONS \cb3 OF\cb3  \cb3 10000\cb3  ROWS;\cf2 \
+\
+\cf2 \'a0\cf2 \
+\cf2 //Relationship user - rating\cb1 \uc0\u8232 \cb3 :auto\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 LOAD\cb3  \cb3 CSV\cb3  \cb3 WITH\cb3  \cb3 HEADERS\cb3  \cb3 FROM\cb3  (\cb3 'file:///Transaction.csv'\cb3 ) \cb3 AS\cb3  row\cf2 \
+\cf2 \cb3 FIELDTERMINATOR\cb3  \cb3 ';'\cf2 \cb3 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 WHERE\cb3  trim(row.UserId) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cb3  \cf2 \
+\cf2 \cb3 AND\cb3  trim(row.AttractionId) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cb3  \cf2 \
+\cf2 \cb3 AND\cb3  trim(row.TransactionId) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cf2 \cb3 \
+\cf2 \cb3 AND\cb3  trim(row.VisitYear) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cb3  \cf2 \
+\cf2 \cb3 AND\cb3  trim(row.VisitMonth) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cb3  \cf2 \
+\cf2 \cb3 AND\cb3  trim(row.VisitMode) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cb3  \cf2 \
+\cf2 \cb3 AND\cb3  trim(row.Rating) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cf2 \cb3 \
+\cf2 \cb3 CALL\cb3  \{\cf2 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 MATCH\cb3  (source:\cb3 User\cb3  \{UserId: trim(row.UserId)\})\cf2 \
+\cf2 \cb3 MATCH\cb3  (target:Item \{AttractionId: trim(row.AttractionId)\})\cf2 \
+\cf2 \cb3 CREATE\cb3  (source)-[r:rated]->(target)\cf2 \
+\cf2 \cb3 SET\cb3  r.TransactionId = toInteger(trim(row.TransactionId)),\cf2 \
+\cf2 r.VisitYear = toInteger(trim(row.VisitYear)),\cf2 \
+\cf2 r.VisitMonth = toInteger(trim(row.VisitMonth)),\cf2 \
+\cf2 r.VisitMode = trim(row.VisitMode),\cf2 \
+\cf2 r.Rating = toInteger(trim(row.Rating))\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \} \cb3 IN\cb3  TRANSACTIONS \cb3 OF\cb3  \cb3 10000\cb3  ROWS;\cf2 \
+\
+//item - rating, second dataset\
+\cf2 :auto\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 LOAD\cb3  \cb3 CSV\cb3  \cb3 WITH\cb3  \cb3 HEADERS\cb3  \cb3 FROM\cb3  (\cb3 'file:///all_places_enriched_cleaned.csv'\cb3 ) \cb3 AS\cb3  row \cb3 FIELDTERMINATOR\cb3  \cb3 ';'\cf2 \cb3 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 WHERE\cb3  trim(row.place_id) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cb3  \cf2 \
+\cf2 \cb3 AND\cb3  trim(row.ReviewedLocationName) \cb3 IS\cb3  \cb3 NOT\cb3  \cb3 NULL\cf2 \cb3 \
+\cf2 \cb3 CALL\cb3  \{\cf2 \
+\cf2 \cb3 WITH\cb3  row\cf2 \
+\cf2 \cb3 MATCH\cb3  (item:Item \{AttractionId: trim(row.place_id)\})\cf2 \
+\cf2 \cb3 MATCH\cb3  (ra:Rating \{ReviewedLocationName: trim(row.ReviewedLocationName)\})\cf2 \
+\cf2 \cb3 MERGE\cb3  (item)-[r:has_rating]->(ra)\cf2 \
+\cf2 \cb3 SET\cb3  r.average_rating_tripadvisor = toFloat(row.average_rating_tripadvisor),\cf2 \
+\cf2 r.total_reviews_tripadvisor = toInteger(row.total_reviews_tripadvisor),\cf2 \
+\cf2 r.avg_google_rating = toFloat(row.avg_google_rating)\cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \} \cb3 IN\cb3  TRANSACTIONS \cb3 OF\cb3  \cb3 10000\cb3  ROWS;\cf2 \
+\
+}
