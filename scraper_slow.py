@@ -59,10 +59,10 @@ def create_proxy_auth_extension(proxy_host, proxy_port, proxy_user, proxy_pass, 
         zp.writestr("background.js", background_js)
     return plugin_path
 
-# 🔐 DeepL API-Key
+#DeepL API-Key
 DEEPL_API_KEY = "9e105097-a8b8-47de-bef8-bb1caf824a01:fx"
 
-# 🔄 Übersetzung via DeepL
+#Translation via DeepL
 def translate_to_english(text):
     if not text or not isinstance(text, str):
         return "N/A"
@@ -81,7 +81,7 @@ def translate_to_english(text):
     except:
         return text
 
-# 🌍 Monatserkennung
+# map month
 MONTHS_MAP = {
     "enero": "01", "febrero": "02", "marzo": "03", "abril": "04", "mayo": "05", "junio": "06",
     "julio": "07", "agosto": "08", "septiembre": "09", "octubre": "10", "noviembre": "11", "diciembre": "12",
@@ -128,14 +128,14 @@ def is_captcha_page(driver):
 
 def extract_reviews(driver, profile_url):
     driver.get("https://api.ipify.org/?format=text")
-    print("🌐 Aktuelle IP:", driver.page_source)
+    print("current IP:", driver.page_source)
     driver.get(profile_url)
     wait = WebDriverWait(driver, 15)
     username = profile_url.split("/")[-1]
     print(f"\n--- Reviews von: {username} ---")
 
     if is_captcha_page(driver):
-        print("⚠ CAPTCHA erkannt! Bitte manuell lösen & ENTER drücken.")
+        print("CAPTCHA - solve manually, press enter.")
         input()
         time.sleep(random.uniform(8, 10))
 
@@ -144,7 +144,7 @@ def extract_reviews(driver, profile_url):
     try:
         review_blocks = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.muQub.VrCoN")))
     except:
-        print("❌ Keine Reviews gefunden.")
+        print("No Reviews found")
         return []
 
     try:
@@ -226,7 +226,7 @@ def extract_reviews(driver, profile_url):
 
     return results
 
-# 🧾 MAIN
+#MAIN
 if __name__ == "__main__":
     batch_number = 2
     batch_size = 10
@@ -237,25 +237,25 @@ if __name__ == "__main__":
     batch_profiles = profile_urls[batch_number * batch_size : (batch_number + 1) * batch_size]
 
     if not batch_profiles:
-        print("❌ Keine URLs in diesem Batch gefunden.")
+        print("No URLS in the batch")
         exit()
 
     driver = init_driver()
     all_results = []
 
     for i, url in enumerate(batch_profiles):
-        print(f"\n📄 Scrape Profil {i + 1}/{len(batch_profiles)}")
+        print(f"\nScrape Profile {i + 1}/{len(batch_profiles)}")
         try:
             driver.get("https://api.ipify.org/?format=text")
-            print("🌐 Aktuelle IP-Adresse:", driver.page_source.strip())
+            print("current IP-address:", driver.page_source.strip())
         except:
-            print("🌐 IP konnte nicht abgerufen werden.")
+            print("ip not found")
 
         all_results.extend(extract_reviews(driver, url))
         time.sleep(random.uniform(15, 30))
 
         if (i + 1) % 3 == 0 and (i + 1) < len(batch_profiles):
-            print("🔄 3 Profile verarbeitet – Driver neu starten für neue IP...")
+            print("3 profiles loaded - start new for new IP-address")
             driver.quit()
             time.sleep(random.uniform(10, 20))
             driver = init_driver()
@@ -273,4 +273,4 @@ if __name__ == "__main__":
         writer.writeheader()
         writer.writerows(all_results)
 
-    print(f"\n✅ Batch {batch_number + 1} gespeichert als {filename}")
+    print(f"\nBatch {batch_number + 1} saved as {filename}")
